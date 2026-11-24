@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173f32">
+<title>Seppies Boerdery</title>
+<style>
+:root{--green:#173f32;--green2:#245b46;--cream:#f5f4ed;--card:#fff;--ink:#1d2923;--muted:#68756d;--line:#e3e8e2;--gold:#d6a84f;--red:#a33b32}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:var(--green);color:#fff;padding:17px max(18px,calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;background:#ffffff1c;display:grid;place-items:center;font-size:23px}.brand h1{font-size:18px;margin:0}.brand small{color:#d6e4db}
+main{max-width:1120px;margin:22px auto;padding:0 16px 40px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.welcome h2{margin:0;font-size:23px}.welcome p{margin:4px 0;color:var(--muted)}
+.btn{border:0;border-radius:10px;padding:10px 15px;background:var(--green2);color:white;font-weight:650}.btn.secondary{background:#e8eee9;color:var(--green)}.btn.danger{background:#fff0ee;color:var(--red)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px}.stat span{color:var(--muted);font-size:13px}.stat strong{display:block;font-size:26px;margin-top:5px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:3px 0 12px;margin-bottom:6px}.tab{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;color:var(--green);font-weight:600}.tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.panel h3{margin:0 0 13px}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:block;font-size:13px;font-weight:650;color:#445149;margin-bottom:5px}
+input,select,textarea{width:100%;border:1px solid #d7dfd8;border-radius:9px;padding:10px;background:#fff;color:var(--ink);min-width:0}
+textarea{min-height:76px;resize:vertical}.field{margin-bottom:12px}.full{grid-column:1/-1}
+.formactions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);font-size:14px}th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.pill{display:inline-block;background:#edf4ef;color:var(--green);padding:3px 8px;border-radius:99px;font-size:12px;font-weight:650}
+.empty{padding:30px 12px;text-align:center;color:var(--muted)}
+.hidden{display:none!important}.login{max-width:420px;margin:8vh auto;padding:24px}.login h2{margin:0 0 6px}.login p{color:var(--muted);margin-top:0}.notice{padding:11px 13px;background:#fff6df;border:1px solid #f0dfae;border-radius:10px;color:#6d541b;font-size:13px;margin:12px 0}
+#message{margin:12px 0;color:var(--red);font-size:14px;white-space:pre-wrap}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}header{padding:14px 16px}.welcome h2{font-size:20px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">🌾</div><div><h1>Seppies Boerdery</h1><small>Farm management</small></div></div>
+ <button id="logout" class="btn secondary hidden">Sign out</button>
+</header>
+<main>
+<section id="loginView" class="panel login">
+ <h2>Welcome back</h2><p>Sign in to your farm account.</p>
+ <div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="username" placeholder="name@example.com"></div>
+ <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password"></div>
+ <button id="loginBtn" class="btn" style="width:100%">Sign in</button>
+ <div id="loginMessage"></div>
+ <div class="notice">Access is restricted to the four farm accounts created by the farm administrator.</div>
+</section>
+
+<section id="appView" class="hidden">
+ <div class="toolbar"><div class="welcome"><h2>Farm overview</h2><p id="signedIn"></p></div><button class="btn" id="quickAdd">＋ Add animal</button></div>
+ <div class="stats">
+  <div class="stat"><span>Total animals</span><strong id="totalAnimals">0</strong></div>
+  <div class="stat"><span>Goats</span><strong id="goatCount">0</strong></div>
+  <div class="stat"><span>Pigs</span><strong id="pigCount">0</strong></div>
+  <div class="stat"><span>Sheep & chickens</span><strong id="otherCount">0</strong></div>
+ </div>
+ <nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="animals">🐐 Animals</button>
+  <button class="tab" data-tab="breeding">🐣 Breeding</button>
+  <button class="tab" data-tab="health">💉 Health</button>
+  <button class="tab" data-tab="trade">💰 Purchases & sales</button>
+  <button class="tab" data-tab="weights">⚖️ Weights</button>
+  <button class="tab" data-tab="expenses">🧾 Expenses</button>
+  <button class="tab" data-tab="losses">📋 Deaths & losses</button>
+  <button class="tab" data-tab="feed">🌽 Feed stock</button>
+ </nav>
+ <div id="content" class="panel"></div>
+ <div id="message"></div>
+</section>
+</main>
+<footer>Seppies Boerdery · Private farm records</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAOJBxkTCwPSd0nQZWDddCOaosOYHRRqik",
+  authDomain: "seppies-boerdery.firebaseapp.com",
+  projectId: "seppies-boerdery",
+  storageBucket: "seppies-boerdery.firebasestorage.app",
+  messagingSenderId: "325566119663",
+  appId: "1:325566119663:web:168d1f9e516bc4d6e9651a"
+};
+
+const loginView=document.getElementById("loginView"), appView=document.getElementById("appView");
+const loginMessage=document.getElementById("loginMessage"), message=document.getElementById("message");
+const content=document.getElementById("content"), logout=document.getElementById("logout");
+let auth,db,currentUser=null,activeTab="animals",records=[];
+const labels={animals:"Animal register",breeding:"Breeding records",health:"Health & vaccinations",trade:"Purchases & sales",weights:"Animal weights",expenses:"Farm expenses",losses:"Deaths & losses",feed:"Feed stock"};
+const fields={
+ animals:[["animalId","Animal ID / tag","text",true],["species","Animal type","select",true,["Boer goat","Pig","Chicken","Sheep"]],["name","Name / description","text"],["sex","Sex","select",false,["Female","Male","Unknown"]],["breed","Breed","text"],["dateOfBirth","Date of birth","date"],["motherId","Mother ID","text"],["fatherId","Father ID","text"],["source","Source / supplier","text"],["purchasePrice","Purchase price (R)","number"],["status","Status","select",false,["Active","Sold","Deceased"]],["notes","Notes","textarea"]],
+ breeding:[["animalId","Female / dam ID","text",true],["mateId","Male / sire ID","text"],["matingDate","Mating date","date"],["expectedDate","Expected birth date","date"],["outcome","Outcome / status","select",false,["Planned","Pregnant","Birthed","Unsuccessful"]],["offspringCount","Number born","number"],["notes","Notes","textarea"]],
+ health:[["animalId","Animal ID (or group)","text",true],["date","Date","date",true],["recordType","Record type","select",true,["Vaccination","Deworming","Medication","Illness","Vet visit","Other"]],["treatment","Treatment / product","text"],["dose","Dose","text"],["nextDue","Next due date","date"],["cost","Cost (R)","number"],["notes","Notes","textarea"]],
+ trade:[["transaction","Transaction","select",true,["Purchase","Sale"]],["date","Date","date",true],["animalId","Animal ID / group","text"],["species","Animal type","select",false,["Boer goat","Pig","Chicken","Sheep"]],["quantity","Quantity","number"],["party","Buyer / seller","text"],["amount","Total amount (R)","number",true],["notes","Notes","textarea"]],
+ weights:[["animalId","Animal ID","text",true],["date","Date weighed","date",true],["weight","Weight (kg)","number",true],["notes","Notes","textarea"]],
+ expenses:[["date","Date","date",true],["category","Category","select",true,["Feed","Veterinary","Medicine","Transport","Equipment","Labour","Other"]],["description","Description","text",true],["amount","Amount (R)","number",true],["notes","Notes","textarea"]],
+ losses:[["animalId","Animal ID / group","text",true],["species","Animal type","select",false,["Boer goat","Pig","Chicken","Sheep"]],["date","Date","date",true],["quantity","Number lost","number",true],["reason","Reason","select",false,["Illness","Injury","Predator","Birth complication","Unknown","Other"]],["estimatedValue","Estimated value (R)","number"],["notes","Notes","textarea"]],
+ feed:[["date","Date","date",true],["feedType","Feed type","text",true],["movement","Stock movement","select",true,["Stock received","Stock used","Adjustment"]],["quantity","Quantity","number",true],["unit","Unit","select",true,["kg","bags","bales","tonnes","other"]],["supplier","Supplier","text"],["cost","Cost (R)","number"],["notes","Notes","textarea"]]
+};
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function showMsg(s="",isLogin=false){(isLogin?loginMessage:message).textContent=s;}
+function fieldHtml(f){const [key,label,type,required,opts]=f;let el="";
+ if(type==="select")el=`<select name="${key}" ${required?"required":""}><option value="">Select…</option>${opts.map(o=>`<option>${esc(o)}</option>`).join("")}</select>`;
+ else if(type==="textarea")el=`<textarea name="${key}"></textarea>`;
+ else el=`<input name="${key}" type="${type}" ${required?"required":""} ${type==="number"?'step="any" min="0"':""}>`;
+ return `<div class="field ${type==="textarea"?"full":""}"><label>${esc(label)}${required?" *":""}</label>${el}</div>`;
+}
+function render(){
+ const isAnimals=activeTab==="animals";
+ content.innerHTML=`<div class="sectionhead"><h3>${labels[activeTab]}</h3><button class="btn" id="addBtn">＋ Add ${isAnimals?"animal":"record"}</button></div>
+ <div class="field"><input id="search" placeholder="Search ${isAnimals?"animals":"records"}…" aria-label="Search"></div>
+ <div id="formHost" class="hidden"></div><div class="tablewrap"><table><thead><tr>${(isAnimals?["Animal ID","Type","Name","Sex","Breed","Date of birth","Status"]:["Date","Main details","Details","Recorded by"]).map(x=>`<th>${x}</th>`).join("")}<th></th></tr></thead><tbody id="rows"></tbody></table></div>`;
+ document.getElementById("addBtn").onclick=()=>openForm();
+ document.getElementById("search").oninput=e=>drawRows(e.target.value);
+ drawRows();
+}
+function openForm(){
+ const host=document.getElementById("formHost");host.classList.remove("hidden");
+ host.innerHTML=`<form id="recordForm"><div class="grid">${fields[activeTab].map(fieldHtml).join("")}</div><div class="formactions"><button type="button" class="btn secondary" id="cancel">Cancel</button><button class="btn" type="submit">Save record</button></div></form>`;
+ document.getElementById("cancel").onclick=()=>host.classList.add("hidden");
+ document.getElementById("recordForm").onsubmit=async e=>{
+  e.preventDefault();const data=Object.fromEntries(new FormData(e.target).entries());
+  for(const k of Object.keys(data)){if(data[k]==="")delete data[k];else if(["purchasePrice","amount","quantity","weight","cost","offspringCount","estimatedValue"].includes(k))data[k]=Number(data[k]);}
+  try{await addDoc(collection(db,"farmRecords"),{...data,type:activeTab,createdAt:serverTimestamp(),createdBy:currentUser.uid,createdByEmail:currentUser.email||""});host.classList.add("hidden");showMsg("Record saved.");await loadRecords();}
+  catch(err){showMsg("Could not save record: "+err.message);}
+ };
+}
+function drawRows(term=""){
+ const body=document.getElementById("rows");if(!body)return;
+ const list=records.filter(r=>r.type===activeTab).filter(r=>JSON.stringify(r).toLowerCase().includes(term.toLowerCase()));
+ if(!list.length){body.innerHTML=`<tr><td colspan="8"><div class="empty">No records yet. Select “Add ${activeTab==="animals"?"animal":"record"}” to get started.</div></td></tr>`;return;}
+ body.innerHTML=list.map(r=>{
+  const d=x=>esc(r[x]??"—");
+  const cells=activeTab==="animals"?[d("animalId"),d("species"),d("name"),d("sex"),d("breed"),d("dateOfBirth"),`<span class="pill">${d("status")}</span>`]:
+   [d("date")!=="—"?d("date"):d("matingDate"),activeTab==="breeding"?`${d("animalId")} × ${d("mateId")}`:activeTab==="health"?`${d("animalId")} · ${d("recordType")}`:activeTab==="trade"?`${d("transaction")} · ${d("species")}`:activeTab==="weights"?d("animalId"):activeTab==="expenses"?d("category"):activeTab==="losses"?`${d("animalId")} · ${d("reason")}`:`${d("feedType")} · ${d("movement")}`,activeTab==="weights"?`${d("weight")} kg`:activeTab==="expenses"||activeTab==="trade"?`R ${d("amount")}`:activeTab==="losses"?`${d("quantity")} lost`:activeTab==="feed"?`${d("quantity")} ${d("unit")}`:d("notes"),d("createdByEmail")];
+  return `<tr>${cells.map(c=>`<td>${c}</td>`).join("")}<td><button class="btn danger" data-delete="${r.id}" title="Delete record">Delete</button></td></tr>`;
+ }).join("");
+ body.querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this record permanently?")){try{await deleteDoc(doc(db,"farmRecords",b.dataset.delete));await loadRecords();}catch(e){showMsg(e.message);}}});
+}
+async function loadRecords(){
+ const snap=await getDocs(query(collection(db,"farmRecords"),orderBy("createdAt","desc")));
+ records=snap.docs.map(d=>({id:d.id,...d.data()}));
+ const a=records.filter(r=>r.type==="animals"&&r.status!=="Sold"&&r.status!=="Deceased");
+ document.getElementById("totalAnimals").textContent=a.length;
+ document.getElementById("goatCount").textContent=a.filter(r=>r.species==="Boer goat").length;
+ document.getElementById("pigCount").textContent=a.filter(r=>r.species==="Pig").length;
+ document.getElementById("otherCount").textContent=a.filter(r=>["Sheep","Chicken"].includes(r.species)).length;
+ drawRows(document.getElementById("search")?.value||"");
+}
+function activate(tab){activeTab=tab;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));render();}
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)activate(b.dataset.tab);});
+document.getElementById("quickAdd").onclick=()=>{activate("animals");openForm();};
+document.getElementById("loginBtn").onclick=async()=>{
+ loginMessage.textContent="Signing in…";
+ try{await signInWithEmailAndPassword(auth,document.getElementById("email").value.trim(),document.getElementById("password").value);}
+ catch(e){loginMessage.textContent="Sign-in failed. Check your email and password."; }
+};
+document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("loginBtn").click();});
+logout.onclick=()=>signOut(auth);
+try{
+ if(firebaseConfig.apiKey==="PASTE_API_KEY_HERE")throw new Error("Firebase setup is not finished. Follow SETUP.md and add your Firebase web configuration.");
+ const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+ onAuthStateChanged(auth,async user=>{
+  currentUser=user;showMsg("");
+  if(user){loginView.classList.add("hidden");appView.classList.remove("hidden");logout.classList.remove("hidden");document.getElementById("signedIn").textContent="Signed in as "+(user.email||"farm user");try{await loadRecords();render();}catch(e){showMsg("Could not load farm records: "+e.message);}}
+  else{appView.classList.add("hidden");loginView.classList.remove("hidden");logout.classList.add("hidden");}
+ });
+}catch(e){loginMessage.textContent=e.message;}
+</script>
+</body>
+</html>

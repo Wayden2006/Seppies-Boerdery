@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only authenticated farm accounts can read or write shared farm records.
+    // Create exactly four accounts in Firebase Authentication; do not add public sign-up.
+    match /farmRecords/{recordId} {
+      allow read, create, update, delete: if request.auth != null;
+    }
+  }
+}
