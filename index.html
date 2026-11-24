@@ -86,6 +86,9 @@ const firebaseConfig = {
   messagingSenderId: "325566119663",
   appId: "1:325566119663:web:168d1f9e516bc4d6e9651a"
 };
+const ADMIN_UID = "nfjdNvTdtgfX9Yc8SzK9iZzAHIo1";
+
+const isAdmin = user => user?.uid === ADMIN_UID;
 
 const loginView=document.getElementById("loginView"), appView=document.getElementById("appView");
 const loginMessage=document.getElementById("loginMessage"), message=document.getElementById("message");
@@ -140,7 +143,23 @@ function drawRows(term=""){
    [d("date")!=="—"?d("date"):d("matingDate"),activeTab==="breeding"?`${d("animalId")} × ${d("mateId")}`:activeTab==="health"?`${d("animalId")} · ${d("recordType")}`:activeTab==="trade"?`${d("transaction")} · ${d("species")}`:activeTab==="weights"?d("animalId"):activeTab==="expenses"?d("category"):activeTab==="losses"?`${d("animalId")} · ${d("reason")}`:`${d("feedType")} · ${d("movement")}`,activeTab==="weights"?`${d("weight")} kg`:activeTab==="expenses"||activeTab==="trade"?`R ${d("amount")}`:activeTab==="losses"?`${d("quantity")} lost`:activeTab==="feed"?`${d("quantity")} ${d("unit")}`:d("notes"),d("createdByEmail")];
   return `<tr>${cells.map(c=>`<td>${c}</td>`).join("")}<td><button class="btn danger" data-delete="${r.id}" title="Delete record">Delete</button></td></tr>`;
  }).join("");
- body.querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this record permanently?")){try{await deleteDoc(doc(db,"farmRecords",b.dataset.delete));await loadRecords();}catch(e){showMsg(e.message);}}});
+
+body.querySelectorAll("[data-delete]").forEach(b => b.onclick = async () => {
+  if (!isAdmin(currentUser)) {
+    showMsg("Only the administrator can delete records.");
+    return;
+  }
+
+  if (confirm("Delete this record permanently?")) {
+    try {
+      await deleteDoc(doc(db, "farmRecords", b.dataset.delete));
+      await loadRecords();
+    } catch (e) {
+      showMsg(e.message);
+    }
+  }
+});
+
 }
 async function loadRecords(){
  const snap=await getDocs(query(collection(db,"farmRecords"),orderBy("createdAt","desc")));
